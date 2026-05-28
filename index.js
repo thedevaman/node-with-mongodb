@@ -39,6 +39,13 @@ app.put("/users-update/:id",async(req,res)=>{
     const userCollection = db.collection("users")
     const updatedusers = await userCollection.updateOne({_id:id},{$set:body})
 
-     res.status(200).json(updatedusers)
+     res.status(200).json({message:"User Updated"})
 
+})
+
+app.delete("/users-delete/:id",async(req,res)=>{
+    const id = new ObjectId(req.params.id)
+    const userCollection = db.collection("users") 
+    const deleteUsers = await userCollection.deleteOne({_id:id})
+    res.status(200).json({message:"User Deleted"})
 })
