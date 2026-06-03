@@ -1,8 +1,11 @@
 const express = require('express')
 const {MongoClient,ObjectId}= require("mongodb")
+const cors = require("cors")
 const app = express()
 let db = null
 app.listen(8080,()=>console.log("server is running"))
+
+app.use(cors())
 
 app.use(express.json())
 app.use(express.urlencoded({extended: false}))
