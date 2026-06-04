@@ -1,9 +1,17 @@
 import { User2 } from 'lucide-react'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 
 function App() {
+
+  const [users, setUsers] = useState([])
+
+  const fetchUser = async() =>{
+const res = await fetch("http://localhost:8080/users-list")
+const data = await res.json()
+setUsers(data)
+  }
   useEffect(()=>{
-   fetch("http://localhost:8080/users-list")
+   fetchUser()
   },[])
   return (
     <div className='bg-gray-200 min-h-screen py-12'>
@@ -14,11 +22,11 @@ function App() {
          </p>
         <div className='grid grid-cols-4 gap-8 mt-8'>
           {
-            Array(12).fill(0).map((item,index)=>(
+            users.map((item,index)=>(
               <div key={index} className='border p-6 rounded-lg border-gray-300 flex flex-col items-center justify-center'>
                 <User2 className='w-16 h-16' />
-                <h1 className='text-black/80 font-medium text-lg'>Aman</h1>
-                <button className='bg-green-400 text-white font-medium px-2 py-1 rounded'>Developer</button>
+                <h1 className='text-black/80 font-medium text-lg'>{item.name}</h1>
+                <button className='bg-green-400 text-white font-medium px-2 py-1 rounded'>{item.role}</button>
               </div>
             ))
           }

@@ -3,7 +3,7 @@ const {MongoClient,ObjectId}= require("mongodb")
 const cors = require("cors")
 const app = express()
 let db = null
-app.listen(8080,()=>console.log("server is running"))
+
 
 app.use(cors())
 
@@ -32,7 +32,7 @@ app.get("/users-list",async(req,res)=>{
 
     const userCollection = db.collection("users")
    const users = await userCollection.find().toArray()
-    res.status(200).json({message:"User list",users})
+    res.status(200).json(users)
 })
 
 app.put("/users-update/:id",async(req,res)=>{
@@ -52,3 +52,5 @@ app.delete("/users-delete/:id",async(req,res)=>{
     const deleteUsers = await userCollection.deleteOne({_id:id})
     res.status(200).json({message:"User Deleted"})
 })
+
+app.listen(8080,()=>console.log("server is running"))
