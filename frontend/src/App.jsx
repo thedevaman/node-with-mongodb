@@ -1,24 +1,49 @@
 import { Edit, Plus, Trash2, User2 } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
-import {Input, Form, Modal, DatePicker, Button } from 'antd';
+import {Input, Form, Modal, DatePicker, Button, message } from 'antd';
+import { useForm } from 'antd/es/form/Form';
+import moment from 'moment'
+const api = "http://localhost:8080/"
 
 function App() {
 
   const [users, setUsers] = useState([])
   const [open,setOpen] = useState(false)
+  const [form] = useForm()
+  const [updateCount,setUpdateCount] = useState(0) 
+
+  const handleClose = ()=>{
+    setOpen(false)
+    form.resetFields()
+  }
 
   const fetchUser = async() =>{
-const res = await fetch("http://localhost:8080/users-list")
+const res = await fetch(api + "users-list")
 const data = await res.json()
 setUsers(data)
   }
   useEffect(()=>{
    fetchUser()
-  },[])
+  },[updateCount])
 
   const createUser = (values)=>{
     values.date = values.date.toDate()
-  console.log(values)
+    fetch(api + "users",{
+      method:'POST',
+      headers:{
+        "content-type":"application/json"
+      },
+      body:JSON.stringify(values)
+    })
+    .then((res)=>res.json())
+    .then((data)=>{
+      message.success(data.message)
+      handleClose()
+      setUpdateCount(updateCount+1)
+
+    })
+
+    handleClose
   }
   return (
     <div className='bg-blue-600 min-h-screen py-24'>
@@ -36,6 +61,7 @@ setUsers(data)
      <table className='w-full text-left'>
         <thead>
           <tr className='bg-gray-300'>
+            <th className='text-center'>Sr.No</th>
             <th className='p-4'>Fullname</th>
             <th>Email</th>
             <th>Mobile</th>
@@ -48,11 +74,12 @@ setUsers(data)
           {
             users.map((item,index)=>(
           <tr key={index} className='border-b border-b-gray-200 text-black/80'>
-            <td className='p-4'>{item.name}</td>
+            <td className='text-center'>{index+1}</td>
+            <td className='p-4 capitalize'>{item.fullname}</td>
             <td>{item.email}</td>
-            <td>{item.contact}</td>
+            <td>{item.mobile_no}</td>
             <td>{item.role}</td>
-            <td>june 4, 2026</td>
+            <td>{moment(item.date).format('MMM DD, YYYY hh:mm A')}</td>
             <td>
               <div className='space-x-3'>
                 <Button icon={<Edit className='w-4 h-4'/>} type='primary'/>
@@ -65,9 +92,9 @@ setUsers(data)
         </tbody>
      </table>
       </div>
-    <Modal open={open} footer={null} onCancel={()=>setOpen(false)}>
+    <Modal open={open} footer={null} onCancel={handleClose}>
       <h1 className='text-lg font-medium mb-3'>New User</h1>
-      <Form layout='vertical' onFinish={createUser}>
+      <Form layout='vertical' onFinish={createUser} form={form}>
         <Form.Item
         label="Fullname"
         name="fullname"
