@@ -1,6 +1,6 @@
-import { Plus, User2 } from 'lucide-react'
+import { Edit, Plus, Trash2, User2 } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
-import { Modal } from 'antd';
+import {Input, Form, Modal, DatePicker, Button } from 'antd';
 
 function App() {
 
@@ -10,12 +10,16 @@ function App() {
   const fetchUser = async() =>{
 const res = await fetch("http://localhost:8080/users-list")
 const data = await res.json()
-console.log(data)
 setUsers(data)
   }
   useEffect(()=>{
    fetchUser()
   },[])
+
+  const createUser = (values)=>{
+    values.date = values.date.toDate()
+  console.log(values)
+  }
   return (
     <div className='bg-blue-600 min-h-screen py-24'>
       <div className='w-9/12 mx-auto bg-white p-8 rounded-xl'>
@@ -37,6 +41,7 @@ setUsers(data)
             <th>Mobile</th>
             <th>Role</th>
             <th>Date</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -48,6 +53,12 @@ setUsers(data)
             <td>{item.contact}</td>
             <td>{item.role}</td>
             <td>june 4, 2026</td>
+            <td>
+              <div className='space-x-3'>
+                <Button icon={<Edit className='w-4 h-4'/>} type='primary'/>
+                <Button icon={<Trash2 className='w-4 h-4'/>} type='primary' danger/>
+              </div>
+            </td>
           </tr>
             ))
           }
@@ -56,6 +67,67 @@ setUsers(data)
       </div>
     <Modal open={open} footer={null} onCancel={()=>setOpen(false)}>
       <h1 className='text-lg font-medium mb-3'>New User</h1>
+      <Form layout='vertical' onFinish={createUser}>
+        <Form.Item
+        label="Fullname"
+        name="fullname"
+        rules={[{required:true}]}
+        >
+          <Input
+          size="large"
+          placeholder="Fullname"
+          />
+        </Form.Item>
+
+         <Form.Item
+        name="email"
+        label="E-Mail"
+        rules={[{required:true,type:'email'}]}
+        >
+          <Input
+          size="large"
+          placeholder="abc@gmail.com"
+          />
+        </Form.Item>
+
+         <Form.Item
+         label="Mobile No."
+        name="mobile_no"
+        rules={[{required:true}]}
+        >
+          <Input
+          size="large"
+          placeholder="Mobile No."
+          />
+        </Form.Item>
+
+         <Form.Item
+         label="Role"
+        name="role"
+        rules={[{required:true}]}
+        >
+          <Input
+          size="large"
+          placeholder="Role"
+          />
+        </Form.Item>
+
+          <Form.Item
+         label="Date"
+        name="date"
+        rules={[{required:true,type:'date'}]}
+        >
+          <DatePicker
+          size="large"
+          placeholder="DD/MM/YYYY"
+          className='w-full'
+          />
+        </Form.Item>
+
+        <Form.Item>
+          <Button size='large' type='primary' htmlType='submit'>Submit</Button>
+        </Form.Item>
+      </Form>
     </Modal>
     </div>
   )
