@@ -26,6 +26,15 @@ setUsers(data)
    fetchUser()
   },[updateCount])
 
+  const deleteUser = (id)=>{
+   const url = `${api}users-delete/${id}`
+   fetch(url,{method:'DELETE'})
+   .then((res)=>res.json()).then((data)=>{
+     setUpdateCount(updateCount+1)
+      message.success(data.message)
+   })
+  }
+
   const createUser = (values)=>{
     values.date = values.date.toDate()
     fetch(api + "users",{
@@ -83,7 +92,7 @@ setUsers(data)
             <td>
               <div className='space-x-3'>
                 <Button icon={<Edit className='w-4 h-4'/>} type='primary'/>
-                <Button icon={<Trash2 className='w-4 h-4'/>} type='primary' danger/>
+                <Button icon={<Trash2 className='w-4 h-4'/>} type='primary' danger onClick={()=>deleteUser(item._id)}/>
               </div>
             </td>
           </tr>
