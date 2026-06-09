@@ -1,6 +1,6 @@
 import { Edit, Plus, Trash2, User2 } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
-import {Input, Form, Modal, DatePicker, Button, message } from 'antd';
+import {Input, Form, Modal, DatePicker, Button, message, Popconfirm } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import moment from 'moment'
 const api = "http://localhost:8080/"
@@ -11,8 +11,10 @@ function App() {
   const [open,setOpen] = useState(false)
   const [form] = useForm()
   const [updateCount,setUpdateCount] = useState(0) 
+  const [editId,setEditId] = useState(null)
 
   const handleClose = ()=>{
+    setEditId(null)
     setOpen(false)
     form.resetFields()
   }
@@ -27,12 +29,19 @@ setUsers(data)
   },[updateCount])
 
   const deleteUser = (id)=>{
-   const url = `${api}users-delete/${id}`
+  
    fetch(url,{method:'DELETE'})
    .then((res)=>res.json()).then((data)=>{
      setUpdateCount(updateCount+1)
       message.success(data.message)
    })
+  }
+
+  const editUser = (item)=>{
+    item.date = moment(item.date)
+    setOpen(true)
+    form.setFieldsValue(item)
+    setEditId(item._id)
   }
 
   const createUser = (values)=>{
@@ -54,6 +63,26 @@ setUsers(data)
 
     handleClose
   }
+
+  const saveUser = (value) =>{
+    const id = editId
+    value.date = moment(value.date.toDate())
+      const editurl = `${api}users-update/${id}`
+      fetch(editurl,{
+        method:'PUT',
+        body : JSON.stringify(value),
+        headers: {'content-Type':'application/json'}
+      })
+      .then((res)=>res.json())
+      .then((data)=>{
+       message.success(data.message)
+       handleClose()
+       setUpdateCount(updateCount+1)
+      })
+  }
+
+
+  
   return (
     <div className='bg-blue-600 min-h-screen py-24'>
       <div className='w-9/12 mx-auto bg-white p-8 rounded-xl'>
@@ -91,8 +120,11 @@ setUsers(data)
             <td>{moment(item.date).format('MMM DD, YYYY hh:mm A')}</td>
             <td>
               <div className='space-x-3'>
-                <Button icon={<Edit className='w-4 h-4'/>} type='primary'/>
-                <Button icon={<Trash2 className='w-4 h-4'/>} type='primary' danger onClick={()=>deleteUser(item._id)}/>
+                <Button onClick={()=>editUser(item)} icon={<Edit className='w-4 h-4'/>} type='primary'/>
+                <Popconfirm onConfirm={()=>deleteUser(item._id)}  title="Delete user"
+                 description="Are you sure you want to delete this user?">
+                <Button icon={<Trash2 className='w-4 h-4'/>} type='primary' danger/>
+                </Popconfirm>
               </div>
             </td>
           </tr>
@@ -103,7 +135,7 @@ setUsers(data)
       </div>
     <Modal open={open} footer={null} onCancel={handleClose}>
       <h1 className='text-lg font-medium mb-3'>New User</h1>
-      <Form layout='vertical' onFinish={createUser} form={form}>
+      <Form layout='vertical' onFinish={ editId ? saveUser : createUser} form={form}>
         <Form.Item
         label="Fullname"
         name="fullname"
@@ -161,7 +193,14 @@ setUsers(data)
         </Form.Item>
 
         <Form.Item>
-          <Button size='large' type='primary' htmlType='submit'>Submit</Button>
+         {
+          editId ? 
+           <Button size='large' type='primary' htmlType='submit'>Save</Button>
+          :
+           <Button size='large' type='primary' htmlType='submit'>Submit</Button>
+         }
+
+         
         </Form.Item>
       </Form>
     </Modal>
