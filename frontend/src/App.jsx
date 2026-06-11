@@ -20,20 +20,31 @@ function App() {
   }
 
   const fetchUser = async() =>{
-const res = await fetch(api + "users-list")
-const data = await res.json()
+fetch(api + "users-list")
+.then((res)=>res.json())
+.then((data)=>{
 setUsers(data)
+})
+.catch((err)=>{
+    message.error(err.message)
+   })
   }
+
+
   useEffect(()=>{
    fetchUser()
   },[updateCount])
 
   const deleteUser = (id)=>{
-  
+    const url = `${api}users-delete/${id}`
    fetch(url,{method:'DELETE'})
-   .then((res)=>res.json()).then((data)=>{
+   .then((res)=>res.json())
+   .then((data)=>{
      setUpdateCount(updateCount+1)
       message.success(data.message)
+   })
+   .catch((err)=>{
+    message.error(err.message)
    })
   }
 
@@ -59,7 +70,10 @@ setUsers(data)
       handleClose()
       setUpdateCount(updateCount+1)
 
-    })
+    }) 
+    .catch((err)=>{
+    message.error(err.message)
+   })
 
     handleClose
   }
